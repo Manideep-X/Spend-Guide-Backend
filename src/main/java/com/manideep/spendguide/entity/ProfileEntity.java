@@ -35,12 +35,13 @@ public class ProfileEntity {
     @Column(name = "image_url")
     private String imageUrl;
     
+    // updatable=false is used to not update this field while executing any update query.
     @Column(name = "creation_time", updatable = false)
-    @CreationTimestamp
+    @CreationTimestamp // will create timestamp only once
     private LocalDateTime creationTime;
     
     @Column(name = "updation_time")
-    @UpdateTimestamp
+    @UpdateTimestamp // will update timestamp on every update query
     private LocalDateTime updationTime;
     
     @Column(name = "is_active")
@@ -106,7 +107,7 @@ public class ProfileEntity {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-    
+
     public LocalDateTime getCreationTime() {
         return creationTime;
     }
@@ -135,6 +136,8 @@ public class ProfileEntity {
         this.activationToken = activationToken;
     }
 
+    // By default the isActive should be false, and will only be set true after verifying the email.
+    // @PrePersist is used to execute the method before saving the current working object into the DB.
     @PrePersist
     public void isActivePerPersist() {
         if (isActive == null) {

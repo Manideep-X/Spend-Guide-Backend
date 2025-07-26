@@ -2,6 +2,7 @@ package com.manideep.spendguide.dto;
 
 import java.time.LocalDateTime;
 
+// DTOs are used for conversation between backend and frontend
 public class ProfileDTO {
 
     private Long id;
