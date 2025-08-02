@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @RestController
-@RequestMapping("/health")
-public class HomeController {
+@RequestMapping({"/health", "/info", "status"})
+public class DemoController {
 
     // Demo controller to check if the application is running
     @GetMapping("")
