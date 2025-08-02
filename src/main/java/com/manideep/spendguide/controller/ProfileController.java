@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.manideep.spendguide.dto.ProfileDTO;
 import com.manideep.spendguide.service.ProfileService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -27,6 +30,16 @@ public class ProfileController {
 
         // This will send a 201 HTTP status code with the DTO as the response body
         return ResponseEntity.status(HttpStatus.CREATED).body(registerProfileDTO);
+    }
+
+    @GetMapping("/activate")
+    public ResponseEntity<String> activateAccount(@RequestParam("token") String activationToken) {
+
+        if (profileService.activateAccount(activationToken)) {
+            return ResponseEntity.status(HttpStatus.OK).body("Account is activated successfully!");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Activation token not found!");
+
     }
 
 }
