@@ -38,6 +38,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(); // Can be used anywhere else by injecting it into that class
     }
 
+    // CORS config method
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
 
