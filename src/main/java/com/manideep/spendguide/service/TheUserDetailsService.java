@@ -13,11 +13,11 @@ import io.jsonwebtoken.lang.Collections;
 
 // This class will tell Spring Security how to load user data from DB during login/authentication.
 @Service
-public class TheUserDetailService implements UserDetailsService {
+public class TheUserDetailsService implements UserDetailsService {
 
     private final ProfileRepository profileRepository;
 
-    public TheUserDetailService(ProfileRepository profileRepository) {
+    public TheUserDetailsService(ProfileRepository profileRepository) {
         this.profileRepository = profileRepository;
     }
 

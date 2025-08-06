@@ -4,7 +4,11 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+// import org.springframework.security.authentication.ProviderManager;
+// import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,20 +18,33 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.manideep.spendguide.service.TheUserDetailsService;
+
 @Configuration
 public class SecurityConfig {
+
+    private final TheUserDetailsService theUserDetailsService;
+
+    public SecurityConfig(TheUserDetailsService theUserDetailsService) {
+        this.theUserDetailsService = theUserDetailsService;
+    }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable()) // Same as .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(configurer -> configurer
-                        .requestMatchers("/health", "/info", "/status", "/activate", "/login").permitAll()
-                        .anyRequest().authenticated())
-                // As it is going to be a stateless API because of the use of JWT authentication
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            .cors(Customizer.withDefaults())
+            .csrf(csrf -> csrf.disable()) // Same as .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(configurer -> configurer
+                    .requestMatchers("/health", "/info", "/status", "/activate", "/login", "/register").permitAll()
+                    .anyRequest().authenticated())
+
+            // Instead of DaoAuthenticationProvider(deprecated), UserDetailsService can be pluged in security filter clain.
+            // Spring will automatically look for PasswordEncoder & autowire it when encountered a UserDeatilsService.
+            .userDetailsService(theUserDetailsService)
+            
+            // As it is going to be a stateless API because of the use of JWT authentication
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
 
@@ -66,4 +83,41 @@ public class SecurityConfig {
 
     }
 
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+
+        // Tells Spring to use authentication logic that is mentioned in the security filter chain.
+        return authConfig.getAuthenticationManager();
+        
+    }
+
+    
 }
+
+
+/*
+//-------------------------------------------------
+//                DEPRECATED CODE
+//-------------------------------------------------
+// DaoAuthenticationProvider, 
+   AuthenticationManagerBuilder are now deprecated.
+   It can be done in security filter chain now
+//-------------------------------------------------
+
+// Authentication Manager method
+@Bean
+AuthenticationManager authenticationManager() {
+
+    // It's a build-in class to help authenticate user credentials using a UserDetailsService and a PasswordEncoder
+    DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+    
+    // It helps spring to load user using email/username
+    authenticationProvider.setUserDetailsService(theUserDetailsService);
+
+    // Set the password encoder to hash/verify user password
+    authenticationProvider.setPasswordEncoder(passwordEncoder());
+
+    // It helps to authenticate using the list of DaoAuthenticationProvider
+    return new ProviderManager(authenticationProvider);
+}
+*/
