@@ -5,8 +5,6 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-// import org.springframework.security.authentication.ProviderManager;
-// import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,19 +12,23 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.manideep.spendguide.filter.JwtRequestFilter;
 import com.manideep.spendguide.service.TheUserDetailsService;
 
 @Configuration
 public class SecurityConfig {
 
     private final TheUserDetailsService theUserDetailsService;
+    private final JwtRequestFilter jwtRequestFilter;
 
-    public SecurityConfig(TheUserDetailsService theUserDetailsService) {
+    public SecurityConfig(TheUserDetailsService theUserDetailsService, JwtRequestFilter jwtRequestFilter) {
         this.theUserDetailsService = theUserDetailsService;
+        this.jwtRequestFilter = jwtRequestFilter;
     }
 
     @Bean
@@ -44,7 +46,8 @@ public class SecurityConfig {
             .userDetailsService(theUserDetailsService)
             
             // As it is going to be a stateless API because of the use of JWT authentication
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
 
@@ -91,7 +94,7 @@ public class SecurityConfig {
         
     }
 
-    
+
 }
 
 
