@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -15,8 +16,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtUtil {
 
     private final String secretKey;
-    private final Date issuedAt = new Date();
-    private final Date expiryAt = new Date(System.currentTimeMillis() + 1000 * 60 * 5); // 5 mins validity
+    private final int expiryDuration = 1000 * 60 * 5; // 5 mins validity
 
     public JwtUtil(@Value("${jwt.secret}") String secretKey) {
         this.secretKey = secretKey;
@@ -25,8 +25,8 @@ public class JwtUtil {
     public String generateToken(String username) {        
         return Jwts.builder()
                 .subject(username)
-                .issuedAt(issuedAt)
-                .expiration(expiryAt)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expiryDuration))
                 .signWith(getSigningKey()) // For signature we need to sign the secret key with HS256
                 .compact(); // This generate the final JWT token
     }
@@ -39,8 +39,11 @@ public class JwtUtil {
         return getAllClaims(token).getExpiration().before(new Date());
     }
 
-    public Boolean isTokenValid(String token) {
-        return !isTokenExpired(token);
+    // First need to check if the token's username matches with the userDetails, then if the token expired.
+    public Boolean isTokenValid(String token, UserDetails userDetails) {
+        return ( getUsername(token).equals(userDetails.getUsername()) 
+                && 
+                !isTokenExpired(token) );
     }
     
 
