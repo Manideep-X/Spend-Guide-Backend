@@ -1,5 +1,6 @@
 package com.manideep.spendguide.controller;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -27,10 +28,16 @@ public class ProfileController {
     public ResponseEntity<ProfileDTO> registerUserProfile(@RequestBody ProfileDTO profileDTO) {
 
         // This will register new user and create a unique activation token
-        ProfileDTO registerProfileDTO = profileService.registerUserProfile(profileDTO);
-
+        ProfileDTO registerProfileDTO = null;
+        try {
+            registerProfileDTO = profileService.registerUserProfile(profileDTO);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(profileDTO);
+        }
         // This will send a 201 HTTP status code with the DTO as the response body
         return ResponseEntity.status(HttpStatus.CREATED).body(registerProfileDTO);
+
     }
 
     @GetMapping("/activate")
@@ -63,5 +70,11 @@ public class ProfileController {
         }
 
     }
+
+    @GetMapping("/test")
+    public String testing() {
+        return "JWT based authentication is successfully implemented!";
+    }
+    
 
 }
