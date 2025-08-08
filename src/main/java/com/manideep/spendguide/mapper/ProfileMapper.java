@@ -26,6 +26,7 @@ public class ProfileMapper {
         profileEntity.setLastName(profileDTO.getLastName());
         profileEntity.setEmail(profileDTO.getEmail());
         profileEntity.setPassword(passwordEncoder.encode(profileDTO.getPassword()));
+        profileEntity.setImageUrl(profileDTO.getImageUrl());
         profileEntity.setCreationTime(profileDTO.getCreationTime());
         profileEntity.setUpdationTime(profileDTO.getUpdationTime());
     
@@ -40,7 +41,7 @@ public class ProfileMapper {
         profileDTO.setFirstName(profileEntity.getFirstName());
         profileDTO.setLastName(profileEntity.getLastName());
         profileDTO.setEmail(profileEntity.getEmail());
-        profileDTO.setPassword(profileEntity.getPassword());
+        profileDTO.setImageUrl(profileEntity.getImageUrl());
         profileDTO.setCreationTime(profileEntity.getCreationTime());
         profileDTO.setUpdationTime(profileEntity.getUpdationTime());
 
