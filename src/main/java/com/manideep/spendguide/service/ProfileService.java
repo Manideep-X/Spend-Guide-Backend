@@ -1,5 +1,6 @@
 package com.manideep.spendguide.service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Map;
 
 import com.manideep.spendguide.dto.AuthenticationDTO;
@@ -9,7 +10,7 @@ import com.manideep.spendguide.entity.ProfileEntity;
 public interface ProfileService {
 
     // Add new user profile to the database
-    ProfileDTO registerUserProfile(ProfileDTO profileDTO);
+    ProfileDTO registerUserProfile(ProfileDTO profileDTO) throws SQLIntegrityConstraintViolationException;
 
     // Activate new user account
     boolean activateAccount(String activationToken);

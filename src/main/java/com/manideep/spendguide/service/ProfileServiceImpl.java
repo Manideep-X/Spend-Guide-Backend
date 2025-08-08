@@ -1,5 +1,6 @@
 package com.manideep.spendguide.service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -8,8 +9,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-// import org.springframework.security.core.userdetails.UserDetails;
-// import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +26,6 @@ public class ProfileServiceImpl implements ProfileService {
     private final ProfileMapper profileMapper;
     private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
-    // private final UserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
 
     @Value("${app.base-url}")
@@ -44,11 +42,14 @@ public class ProfileServiceImpl implements ProfileService {
 
     // Register new user and send activation link to the registered email
     @Override
-    public ProfileDTO registerUserProfile(ProfileDTO profileDTO) {
+    public ProfileDTO registerUserProfile(ProfileDTO profileDTO) throws SQLIntegrityConstraintViolationException {
 
         ProfileEntity newProfileEntity = profileMapper.dtoToEntity(profileDTO);
 
         // Generates a unique random ID to activate the user profile and save it in DB.
+        if(profileRepository.findByEmail(profileDTO.getEmail()).isPresent()) {
+            throw new SQLIntegrityConstraintViolationException("Email already exists! Use another email");
+        }
         newProfileEntity.setActivationToken(UUID.randomUUID().toString());
         profileRepository.save(newProfileEntity);
 
@@ -90,8 +91,8 @@ public class ProfileServiceImpl implements ProfileService {
     public ProfileEntity getCurrentAccount() {
 
         // SecurityContextHolder is Spring Security’s way of storing details about the currently authenticated user.
-        // getContext gets the current SecurityContext
-        // getAuthenticated returns the currently logged-in user
+        // getContext gets the current SecurityContext.
+        // getAuthenticated returns the currently logged-in user.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // getName give the username of the user account i.e., email
@@ -126,9 +127,7 @@ public class ProfileServiceImpl implements ProfileService {
             // Authenticate the user
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDetails.getEmail(), authDetails.getPassword()));
             
-            // UserDetails userDetails = userDetailsService.loadUserByUsername(authDetails.getEmail());
             // Generate and return JWT token with DTO object
-            // String jwtToken = jwtUtil.generateToken(userDetails.getUsername());
             String jwtToken = jwtUtil.generateToken(authDetails.getEmail());
     
             return Map.of(
