@@ -88,6 +88,13 @@ public class CategoryEntity {
         this.updationTime = updationTime;
     }
 
+    public String getIconUrl() {
+        return iconUrl;
+    }
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
+    }
+    
     public String getType() {
         return type;
     }

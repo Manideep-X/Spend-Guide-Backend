@@ -14,7 +14,7 @@ public class CategoryDTO {
     
     public CategoryDTO() {
     }
-    public CategoryDTO(Long id, String profileId, String name, LocalDateTime creationTime, LocalDateTime updationTime,
+    public CategoryDTO(Long id, Long profileId, String name, LocalDateTime creationTime, LocalDateTime updationTime,
             String iconUrl, String type) {
         this.id = id;
         this.profileId = profileId;
@@ -32,10 +32,10 @@ public class CategoryDTO {
         this.id = id;
     }
 
-    public String getProfileId() {
+    public Long getProfileId() {
         return profileId;
     }
-    public void setProfileId(String profileId) {
+    public void setProfileId(Long profileId) {
         this.profileId = profileId;
     }
 
