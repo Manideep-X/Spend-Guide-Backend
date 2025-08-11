@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import com.manideep.spendguide.dto.ProfileDTO;
 import com.manideep.spendguide.entity.ProfileEntity;
 
-// Mapper class used for converting DTO to Entity object or vise-versa
+// Profile Mapper class used for converting DTO to Entity object or vise-versa
 // Always returns a new object
 @Component
 public class ProfileMapper {
