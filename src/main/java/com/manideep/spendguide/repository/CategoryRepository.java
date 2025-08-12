@@ -18,7 +18,4 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
     // SQL Query: select * from table_category where type = ?1 and profile_id = ?2;
     List<CategoryEntity> findByTypeAndProfileId(String type, Long profileId);
 
-    // SQL Query: select case when count(*) > 0 then true else false end from table_category where name = ?1 and profile_id = ?2;
-    Boolean existsByNameAndProfileId(String name, Long profileId);
-
 }
