@@ -45,11 +45,11 @@ public class IncomeEntity {
     private LocalDateTime updationTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(table = "category_id", nullable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity categoryEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(table = "profile_id", nullable = false)
+    @JoinColumn(name = "profile_id", nullable = false)
     private ProfileEntity profileEntity;
 
     public IncomeEntity() {
