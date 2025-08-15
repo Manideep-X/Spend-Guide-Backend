@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.manideep.spendguide.dto.IncomeDTO;
@@ -102,7 +103,19 @@ public class IncomeServiceImpl implements IncomeService {
         return totalAmount == null ? BigDecimal.ZERO : totalAmount;
 
     }
-    
-    
+
+    // Return incomes based on start and end date and keyword search
+    @Override
+    public List<IncomeDTO> searchByFilter(LocalDate startDate, LocalDate endDate, String keyword, Sort sort) {
+        
+        ProfileEntity profileEntity = profileService.getCurrentAccount();
+
+        List<IncomeEntity> filteredIncomes = incomeRepository.findByProfileEntity_IdAndDateBetweenAndNameContainingIgnoreCase(
+            profileEntity.getId(), startDate, endDate, keyword, sort
+        );
+
+        return filteredIncomes.stream().map(incomeMapper::entityToDto).toList();
+
+    }
 
 }
