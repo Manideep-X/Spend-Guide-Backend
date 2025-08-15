@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.manideep.spendguide.dto.ExpenseDTO;
@@ -102,6 +103,29 @@ public class ExpenseServiceImpl implements ExpenseService {
         BigDecimal totalAmount = expenseRepository.findTotalAmountByProfileEntity_Id(profileEntity.getId());
         // If the value is null then return value will be zero.
         return totalAmount == null ? BigDecimal.ZERO : totalAmount;
+
+    }
+
+    // Return expenses based on start and end date and keyword search
+    @Override
+    public List<ExpenseDTO> searchByFilter(LocalDate startDate, LocalDate endDate, String keyword, Sort sort) {
+
+        ProfileEntity profileEntity = profileService.getCurrentAccount();
+
+        List<ExpenseEntity> filteredExpenses = expenseRepository.findByProfileEntity_IdAndDateBetweenAndNameContainingIgnoreCase(
+            profileEntity.getId(), startDate, endDate, keyword, sort
+        );
+
+        return filteredExpenses.stream().map(expenseMapper::entityToDto).toList();
+
+    }
+
+    // Returns expenses on a perticular date of current user.(Used for push notification)
+    @Override
+    public List<ExpenseDTO> getByDateForCurrAcc(Long profileId, LocalDate date) {
+        
+        List<ExpenseEntity> expenses = expenseRepository.findByProfileEntity_IdAndDate(profileId, date);
+        return expenses.stream().map(expenseMapper::entityToDto).toList();
 
     }
 
