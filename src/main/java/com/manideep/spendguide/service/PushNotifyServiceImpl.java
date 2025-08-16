@@ -1,21 +1,19 @@
 package com.manideep.spendguide.service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.manideep.spendguide.dto.ExpenseDTO;
 import com.manideep.spendguide.entity.ProfileEntity;
 import com.manideep.spendguide.repository.ProfileRepository;
+import com.manideep.spendguide.util.EmailTemplateUtil;
 
 @Service
 public class PushNotifyServiceImpl implements PushNotifyService {
@@ -27,35 +25,17 @@ public class PushNotifyServiceImpl implements PushNotifyService {
     private final ProfileRepository profileRepository;
     private final ExpenseService expenseService;
     private final EmailService emailService;
-
-    private final String trStart = "<tr style='background-color: #f9fafb;'>";
-    private final String trEnd = "</tr>";
-    private final String tdStart = "<td style='color: #374151; padding: 12px; border-bottom: 1px solid #e5e7eb;'>";
-    private final String tdStartAmount = "<td style='color: #dc2626; padding: 12px; text-align: right; border-bottom: 1px solid #e5e7eb; font-weight: 600;'>";
-    private final String tdEnd = "</td>";
+    private final EmailTemplateUtil emailUtil;
 
     @Value("${app.frontend-url}")
     private String frontendURL;
 
     public PushNotifyServiceImpl(ProfileRepository profileRepository, ExpenseService expenseService,
-            EmailService emailService) {
+            EmailService emailService, EmailTemplateUtil emailUtil) {
         this.profileRepository = profileRepository;
         this.expenseService = expenseService;
         this.emailService = emailService;
-    }
-
-    // Fetch email push notification template from recources
-    private String loadEmailTemplate(String templateName) throws IOException {
-
-        ClassPathResource resource = new ClassPathResource("email/" + templateName);
-
-        try (InputStream inputStream = resource.getInputStream()) {
-            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            logger.error("Fail to fetch Email template: loadEmailTemplate() : {}", templateName);
-            throw new IOException("Failed to load email template ", e);
-        }
-
+        this.emailUtil = emailUtil;
     }
 
     // This will schedule email for every minute
@@ -66,63 +46,69 @@ public class PushNotifyServiceImpl implements PushNotifyService {
     @Scheduled(cron = "0 0 21 * * *", zone = "IST")
     public void pushNotifyDaily() {
 
-        logger.info("Notification Scheduled [Reminder]: pushNotifyDaily()");
+        logger.info("Notification Scheduling... [Reminder]: pushNotifyDaily()");
         List<ProfileEntity> profileEntities = profileRepository.findAll();
 
-        String emailTemplate = null;
-        try {
-            emailTemplate = loadEmailTemplate("email-reminder.html");
-        } catch (IOException e) {
-            logger.error("Fail to send daily email: pushNotifyDaily(): ", e);
-        }
+        // Schedules email for each profile
+        for (ProfileEntity profileEntity : profileEntities) {
 
-        if (emailTemplate != null) {
-            for (ProfileEntity profileEntity : profileEntities) {
+            // Adds the username and button URL into the email template
+            String body = emailUtil.pushNotifyBody(profileEntity.getFirstName(), frontendURL);
 
-                String body = emailTemplate
-                        .replace("{{FIRST_NAME}}", profileEntity.getFirstName())
-                        .replace("{{BUTTON_URL}}", frontendURL);
-
-                emailService.sendEmail(profileEntity.getEmail(), "Spend Guide Reminder: Add your spending and incomes",
-                        body);
+            // Schedules the email if the body is not null
+            if (body != null) {
+                emailService.sendEmail(
+                    profileEntity.getEmail(),
+                    "Spend Guide Reminder: Add your spending and incomes",
+                    body
+                );
+                logger.info("Notification Scheduled [Reminder]: pushNotifyDaily()");
             }
-            logger.info("Notification Sending Completed [Reminder]: pushNotifyDaily()");
         }
     }
 
     // This will schedule today's summary email for everday at 11:00pm IST
-    @Scheduled(cron = "0 0 23 * * *", zone = "IST")
     @Override
+    @Scheduled(cron = "0 0 23 * * *", zone = "IST")
+    @Transactional(readOnly = true)
     public void notifyExpenseSummaryDaily() {
 
-        logger.info("Notification Scheduled [Expense Summary]: notifyExpenseSummaryDaily()");
+        logger.info("Notification Scheduling... [Expense Summary]: notifyExpenseSummaryDaily()");
         List<ProfileEntity> profileEntities = profileRepository.findAll();
-
-        String emailTemplate = null;
-        try {
-            emailTemplate = loadEmailTemplate("email-reminder.html");
-        } catch (IOException e) {
-            logger.error("Fail to send daily email: pushNotifyDaily(): ", e);
-        }
 
         for (ProfileEntity profileEntity : profileEntities) {
 
-            List<ExpenseDTO> expensesToday = expenseService.getByDateForCurrAcc(profileEntity.getId(),
-                    LocalDate.now());
+            List<ExpenseDTO> expensesToday = expenseService.getByDateForCurrAcc(profileEntity.getId(),LocalDate.now());
 
-            if (!expensesToday.isEmpty() && emailTemplate != null) {
+            // Creates the table by put all info regarding expenses for each user
+            if (!expensesToday.isEmpty()) {
                 StringBuilder tbody = new StringBuilder();
                 int i = 1;
                 for (ExpenseDTO expenseDTO : expensesToday) {
-                    tbody.append(trStart);
-                    tbody.append(tdStart).append(i++).append(tdEnd);
-                    tbody.append(trEnd);
+                    tbody
+                    .append(i % 2 == 1 ? emailUtil.getTrStart1st() : emailUtil.getTrStart2nd())
+                    .append(emailUtil.getTdStart()).append(i++).append(emailUtil.getTdEnd())
+                    .append(emailUtil.getTdStart()).append(expenseDTO.getName()).append(emailUtil.getTdEnd())
+                    .append(emailUtil.getTdStart())
+                    .append(expenseDTO.getCategoryId() == null ? "N/A" : expenseDTO.getCategoryName())
+                    .append(emailUtil.getTdEnd())
+                    .append(emailUtil.getTdStartAmount()).append(expenseDTO.getAmount()).append(emailUtil.getTdEnd())
+                    .append(emailUtil.getTrEnd());
+                }
+
+                // Adds the table and username and button URL into the email template
+                String body = emailUtil.expenseSummaryBody(profileEntity.getFirstName(), tbody.toString(), frontendURL);
+
+                // Schedules the email if the body is not null
+                if (body != null) {
+                    emailService.sendEmail(
+                        profileEntity.getEmail(), 
+                        "Spend Guide Summary: Your daily spending summary",
+                        body);
+                    logger.info("Notification Scheduled [Expense Summary]: notifyExpenseSummaryDaily()");
                 }
             }
         }
-
-        logger.info("Notification Sending Completed [Expense Summary]: notifyExpenseSummaryDaily()");
-
     }
 
 }
