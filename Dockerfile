@@ -9,6 +9,10 @@
     COPY mvnw .
     COPY mvnw.cmd .
     COPY .mvn/ .mvn
+
+    # make the mvnw and mvnw.cmd executable
+    RUN chmod +x mvnw
+    RUN chmod +x mvnw.cmd
     
     # This layer will be cached unless pom.xml changes
     RUN ./mvnw dependency:go-offline -B
