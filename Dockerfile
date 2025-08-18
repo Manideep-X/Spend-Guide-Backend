@@ -1,7 +1,7 @@
 # --------------------
 # Stage 1
 # --------------------
-    FROM maven:3.9.11-eclipse-temurin-21 AS stage
+    FROM maven:3.9.11-eclipse-temurin-24 AS stage
     WORKDIR /app
     
     # Copy maven files into the working directory and cache dependencies
@@ -24,7 +24,7 @@
 # --------------------
 # Stage 2
 # --------------------
-    FROM openjdk:21-jdk-slim
+    FROM openjdk:24-jdk-slim
     WORKDIR /app
     
     # Copy JAR from build stage
