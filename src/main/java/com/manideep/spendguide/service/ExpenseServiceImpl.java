@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.manideep.spendguide.dto.ExpenseDTO;
@@ -32,9 +33,16 @@ public class ExpenseServiceImpl implements ExpenseService {
     
     // save a new expense to the DB for the current user
     @Override
-    public ExpenseDTO saveExpense(ExpenseDTO expenseDTO) {
+    public ExpenseDTO saveExpense(ExpenseDTO expenseDTO) throws UsernameNotFoundException, RuntimeException {
         
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
+        // Throws error if couldn't find the current account
+        ProfileEntity profileEntity = null;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
+
         CategoryEntity categoryEntity = categoryRepository.findById(expenseDTO.getCategoryId()).orElseThrow(
             () -> new RuntimeException("This category is not present!")
         );
@@ -49,9 +57,15 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     // Returns all expenses of current month for current user.
     @Override
-    public List<ExpenseDTO> getForCurrMonthForCurrAcc() {
+    public List<ExpenseDTO> getForCurrMonthForCurrAcc() throws UsernameNotFoundException {
         
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
+        // Throws error if couldn't find the current account
+        ProfileEntity profileEntity = null;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
         
         // Present date and start date of the current month:
         LocalDate presentDate = LocalDate.now();
@@ -67,9 +81,15 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     // Delete an expense by it's ID.
     @Override
-    public void deleteExpenseById(Long expenseId) {
+    public void deleteExpenseById(Long expenseId) throws UsernameNotFoundException, RuntimeException {
         
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
+        // Throws error if couldn't find the current account
+        ProfileEntity profileEntity = null;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
 
         ExpenseEntity expenseEntity = expenseRepository.findById(expenseId).orElseThrow(
             () -> new RuntimeException("This expense is not present!")
@@ -85,9 +105,15 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     // Returns latest 5 expenses of current user.
     @Override
-    public List<ExpenseDTO> getLatest5ForCurrAcc() {
+    public List<ExpenseDTO> getLatest5ForCurrAcc() throws UsernameNotFoundException {
         
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
+        // Throws error if couldn't find the current account
+        ProfileEntity profileEntity = null;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
         
         List<ExpenseEntity> expenses = expenseRepository.findTop5ByProfileEntity_IdOrderByDateDesc(profileEntity.getId());
         return expenses.stream().map(expenseMapper::entityToDto).toList();
@@ -96,9 +122,15 @@ public class ExpenseServiceImpl implements ExpenseService {
     
     // Returns the sum of all expense of the current user.
     @Override
-    public BigDecimal getTotalForCurrAcc() {
+    public BigDecimal getTotalForCurrAcc() throws UsernameNotFoundException {
         
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
+        // Throws error if couldn't find the current account
+        ProfileEntity profileEntity = null;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
         
         BigDecimal totalAmount = expenseRepository.findTotalAmountByProfileEntity_Id(profileEntity.getId());
         // If the value is null then return value will be zero.
@@ -108,9 +140,15 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     // Return expenses based on start and end date and keyword search
     @Override
-    public List<ExpenseDTO> searchByFilter(LocalDate startDate, LocalDate endDate, String keyword, Sort sort) {
+    public List<ExpenseDTO> searchByFilter(LocalDate startDate, LocalDate endDate, String keyword, Sort sort) throws UsernameNotFoundException {
 
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
+        // Throws error if couldn't find the current account
+        ProfileEntity profileEntity = null;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
 
         List<ExpenseEntity> filteredExpenses = expenseRepository.findByProfileEntity_IdAndDateBetweenAndNameContainingIgnoreCase(
             profileEntity.getId(), startDate, endDate, keyword, sort

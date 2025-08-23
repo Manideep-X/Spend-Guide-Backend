@@ -57,7 +57,7 @@ public class ProfileController {
             // Need to check if the user account is activated or not; if not then deny access
             if (!profileService.isAccountActive(authDetails.getEmail())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
-                        "message", "Account is not yet activated."));
+                        "message", "Activation Error: Account is not yet activated."));
             }
             
             // if the account is active then return the user a/c obj and token as response
