@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.manideep.spendguide.dto.ExpenseDTO;
@@ -31,11 +32,18 @@ public class DashboardServiceImpl implements DashboardService {
 
     // Returns all details related to incomes and expenses that will get displayed in the Dashboard.
     @Override
-    public Map<String, Object> getDashboardDetails() {
+    public Map<String, Object> getDashboardDetails() throws UsernameNotFoundException {
         
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
-        List<IncomeDTO> last5Incomes = incomeService.getLatest5ForCurrAcc();
-        List<ExpenseDTO> last5Expenses = expenseService.getLatest5ForCurrAcc();
+        ProfileEntity profileEntity;
+        List<IncomeDTO> last5Incomes;
+        List<ExpenseDTO> last5Expenses;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+            last5Incomes = incomeService.getLatest5ForCurrAcc();
+            last5Expenses = expenseService.getLatest5ForCurrAcc();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
 
         // Concatinate both the list of income and expense after mapping each one to the transaction DTO and then sorting based on date (decreasing order)
         List<LatestTransactionDTO> last10Transactions = Stream.concat(

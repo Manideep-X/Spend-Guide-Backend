@@ -3,6 +3,8 @@ package com.manideep.spendguide.service;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Map;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import com.manideep.spendguide.dto.AuthenticationDTO;
 import com.manideep.spendguide.dto.ProfileDTO;
 import com.manideep.spendguide.entity.ProfileEntity;
@@ -19,12 +21,12 @@ public interface ProfileService {
     boolean isAccountActive(String email);
 
     // Returns currently working user account object
-    ProfileEntity getCurrentAccount();
+    ProfileEntity getCurrentAccount() throws UsernameNotFoundException;
 
     // Return converted DTO obj of account(from frontend) by email or logged-in user account
-    ProfileDTO getDtoByEmailOrCurrAcc(String email);
+    ProfileDTO getDtoByEmailOrCurrAcc(String email) throws UsernameNotFoundException;
 
     // Returns newly generated authentication token along with the user profile
-    Map<String, Object> authAndGenerateToken(AuthenticationDTO authDetails);
+    Map<String, Object> authAndGenerateToken(AuthenticationDTO authDetails) throws UsernameNotFoundException;
 
 }

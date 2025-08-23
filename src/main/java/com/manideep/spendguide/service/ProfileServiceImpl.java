@@ -88,7 +88,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     // Returns currently working user account object
     @Override
-    public ProfileEntity getCurrentAccount() {
+    public ProfileEntity getCurrentAccount() throws UsernameNotFoundException {
 
         // SecurityContextHolder is Spring Security’s way of storing details about the currently authenticated user.
         // getContext gets the current SecurityContext.
@@ -104,7 +104,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     // Returns converted DTO obj of account(from frontend) find by email or logged-in user account
     @Override
-    public ProfileDTO getDtoByEmailOrCurrAcc(String email) {
+    public ProfileDTO getDtoByEmailOrCurrAcc(String email) throws UsernameNotFoundException {
 
         ProfileEntity profileEntity;
         if (email != null) {
@@ -121,7 +121,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     // Returns newly generated authentication token along with the user profile
     @Override
-    public Map<String, Object> authAndGenerateToken(AuthenticationDTO authDetails) {
+    public Map<String, Object> authAndGenerateToken(AuthenticationDTO authDetails) throws UsernameNotFoundException {
         
         try {
             // Authenticate the user
@@ -135,7 +135,7 @@ public class ProfileServiceImpl implements ProfileService {
                 "user", getDtoByEmailOrCurrAcc(authDetails.getEmail())
             );
         } catch (Exception e) {
-            throw new UsernameNotFoundException("Incorrect email or password!");
+            throw new UsernameNotFoundException("Invalid credentials: Please check your username & password");
         }
 
 

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.manideep.spendguide.dto.IncomeDTO;
@@ -32,9 +33,15 @@ public class IncomeServiceImpl implements IncomeService {
 
     // save a new Income to the DB for the current user
     @Override
-    public IncomeDTO saveIncome(IncomeDTO incomeDTO) {
+    public IncomeDTO saveIncome(IncomeDTO incomeDTO) throws UsernameNotFoundException, RuntimeException {
         
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
+        ProfileEntity profileEntity = null;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
+        
         CategoryEntity categoryEntity = categoryRepository.findById(incomeDTO.getCategoryId()).orElseThrow(
             () -> new RuntimeException("This category is not present!")
         );
@@ -48,9 +55,14 @@ public class IncomeServiceImpl implements IncomeService {
 
     // Returns all incomes of current month for current user.
     @Override
-    public List<IncomeDTO> getForCurrMonthForCurrAcc() {
+    public List<IncomeDTO> getForCurrMonthForCurrAcc() throws UsernameNotFoundException {
         
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
+        ProfileEntity profileEntity = null;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
         
         // Present date and start date of the current month:
         LocalDate presentDate = LocalDate.now();
@@ -66,9 +78,14 @@ public class IncomeServiceImpl implements IncomeService {
 
     // Delete an income by it's ID.
     @Override
-    public void deleteIncomeById(Long incomeId) {
+    public void deleteIncomeById(Long incomeId) throws UsernameNotFoundException, RuntimeException {
         
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
+        ProfileEntity profileEntity = null;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
 
         IncomeEntity incomeEntity = incomeRepository.findById(incomeId).orElseThrow(
             () -> new RuntimeException("This income is not present!")
@@ -84,9 +101,14 @@ public class IncomeServiceImpl implements IncomeService {
 
     // Returns latest 5 incomes of current user.
     @Override
-    public List<IncomeDTO> getLatest5ForCurrAcc() {
+    public List<IncomeDTO> getLatest5ForCurrAcc() throws UsernameNotFoundException {
         
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
+        ProfileEntity profileEntity = null;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
 
         List<IncomeEntity> incomes = incomeRepository.findTop5ByProfileEntity_IdOrderByDateDesc(profileEntity.getId());
         return incomes.stream().map(incomeMapper::entityToDto).toList();
@@ -95,9 +117,14 @@ public class IncomeServiceImpl implements IncomeService {
 
     // Returns the sum of all income of the current user.
     @Override
-    public BigDecimal getTotalForCurrAcc() {
+    public BigDecimal getTotalForCurrAcc() throws UsernameNotFoundException {
         
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
+        ProfileEntity profileEntity = null;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
 
         BigDecimal totalAmount = incomeRepository.findTotalAmountByProfileEntity_Id(profileEntity.getId());
         return totalAmount == null ? BigDecimal.ZERO : totalAmount;
@@ -106,9 +133,14 @@ public class IncomeServiceImpl implements IncomeService {
 
     // Return incomes based on start and end date and keyword search
     @Override
-    public List<IncomeDTO> searchByFilter(LocalDate startDate, LocalDate endDate, String keyword, Sort sort) {
+    public List<IncomeDTO> searchByFilter(LocalDate startDate, LocalDate endDate, String keyword, Sort sort) throws UsernameNotFoundException {
         
-        ProfileEntity profileEntity = profileService.getCurrentAccount();
+        ProfileEntity profileEntity = null;
+        try {
+            profileEntity = profileService.getCurrentAccount();
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
 
         List<IncomeEntity> filteredIncomes = incomeRepository.findByProfileEntity_IdAndDateBetweenAndNameContainingIgnoreCase(
             profileEntity.getId(), startDate, endDate, keyword, sort
