@@ -2,6 +2,7 @@ package com.manideep.spendguide.config;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +26,9 @@ public class SecurityConfig {
 
     private final TheUserDetailsService theUserDetailsService;
     private final JwtRequestFilter jwtRequestFilter;
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     public SecurityConfig(TheUserDetailsService theUserDetailsService, JwtRequestFilter jwtRequestFilter) {
         this.theUserDetailsService = theUserDetailsService;
@@ -65,7 +69,7 @@ public class SecurityConfig {
         CorsConfiguration cors = new CorsConfiguration();
 
         // Allowed Domains
-        cors.setAllowedOriginPatterns(List.of("${FRONTEND_URL}"));
+        cors.setAllowedOriginPatterns(List.of(frontendUrl));
 
         // Allowed HTTP methods
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
