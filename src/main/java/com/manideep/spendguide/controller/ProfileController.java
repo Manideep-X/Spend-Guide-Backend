@@ -71,10 +71,20 @@ public class ProfileController {
 
     }
 
+    // Fetch the details of the current user.
+    @GetMapping("/profile-details")
+    public ResponseEntity<ProfileDTO> getCurrentAccount() {
+        try {
+            ProfileDTO currentUser = profileService.getDtoByEmailOrCurrAcc(null);
+            return ResponseEntity.ok(currentUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+    }
+
     @GetMapping("/test")
     public String testing() {
         return "JWT based authentication is successfully implemented!";
     }
-    
 
 }
