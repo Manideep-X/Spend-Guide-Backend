@@ -54,8 +54,11 @@ public class ProfileController {
     public ResponseEntity<Map<String, Object>> postLogin(@RequestBody AuthenticationDTO authDetails) {
 
         try {
+            // Need to check if the user account exists in the database or not
+            ProfileDTO userTryingToLogin = profileService.getDtoByEmailOrCurrAcc(authDetails.getEmail());
+
             // Need to check if the user account is activated or not; if not then deny access
-            if (!profileService.isAccountActive(authDetails.getEmail())) {
+            if (!profileService.isAccountActive(userTryingToLogin.getEmail())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
                         "message", "Activation Error: Account is not yet activated."));
             }
