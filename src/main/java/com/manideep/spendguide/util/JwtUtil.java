@@ -16,7 +16,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtUtil {
 
     private final String secretKey;
-    private final int expiryDuration = 1000 * 60 * 60; // 60 mins validity
+    private final int expiryDuration = 1000 * 60 * 60 * 3; // 3 hours validity
 
     public JwtUtil(@Value("${jwt.secret}") String secretKey) {
         this.secretKey = secretKey;
