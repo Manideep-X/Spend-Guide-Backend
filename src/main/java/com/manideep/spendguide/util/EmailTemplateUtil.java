@@ -106,4 +106,27 @@ public class EmailTemplateUtil {
         return expenseSummaryBody;
     }
 
+    // Fetches list template and replace the parameters inside it.
+    public String transactionListBody(String firstName, String spendingOrIncome, String buttonUrl) {
+
+        // Gets the email template
+        String emailTemplate = null;
+        try {
+            emailTemplate = loadEmailTemplate("email-transaction-list.html");
+        } catch (IOException e) {
+            logger.error("Fail to send excel email: transactionListBody(): ", e);
+            return null;
+        }
+
+        // Replaces the parameters
+        String transactionListBody = null;
+        if (emailTemplate != null) {
+            transactionListBody = emailTemplate
+                            .replace("{{FIRST_NAME}}", firstName)
+                            .replace("{{SPENDING_OR_INCOME}}", spendingOrIncome)
+                            .replace("{{BUTTON_URL}}", buttonUrl);
+        }
+        return transactionListBody;
+    }
+
 }
