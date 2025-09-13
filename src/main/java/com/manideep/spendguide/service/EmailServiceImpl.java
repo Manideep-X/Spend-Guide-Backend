@@ -2,6 +2,8 @@ package com.manideep.spendguide.service;
 
 import java.io.ByteArrayInputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,6 +16,8 @@ import jakarta.mail.util.ByteArrayDataSource;
 
 @Service
 public class EmailServiceImpl implements EmailService {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     private final JavaMailSender javaMailSender;
 
@@ -40,6 +44,7 @@ public class EmailServiceImpl implements EmailService {
             email.setText(body);
             javaMailSender.send(email);
         } catch (Exception e) {
+            logger.error("[SimpleMailMessage, JavaMailSender] failed to send email", e);
             throw new RuntimeException(e.getMessage());
         }
         
@@ -61,7 +66,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(senderEmail);
             helper.setTo(sendTo);
             helper.setSubject(subject);
-            helper.setText(body);
+            helper.setText(body, true); // Second parameter is true as there is HTML in the bady
 
             // Type casting ByteArrayInputStream to ByteArrayDataStream and then upcasting it to DataSource,
             // as DataSource is accepted as a parameter in addAttachment()
@@ -71,6 +76,7 @@ public class EmailServiceImpl implements EmailService {
 
             javaMailSender.send(message);
         } catch (Exception e) {
+            logger.error("[MimeMessage, JavaMailSender] failed to send email", e);
             throw new RuntimeException(e.getMessage());
         }
         
