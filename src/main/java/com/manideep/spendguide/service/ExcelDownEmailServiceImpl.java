@@ -33,10 +33,9 @@ public class ExcelDownEmailServiceImpl implements ExcelDownEmailService {
     @Value("${app.frontend-url}")
     private String frontendURL;
 
-    public ExcelDownEmailServiceImpl(EmailTemplateUtil emailUtil, EmailService emailService, String frontendURL, ProfileService profileService) {
+    public ExcelDownEmailServiceImpl(EmailTemplateUtil emailUtil, EmailService emailService, ProfileService profileService) {
         this.emailUtil = emailUtil;
         this.emailService = emailService;
-        this.frontendURL = frontendURL;
         this.profileService = profileService;
     }
 
