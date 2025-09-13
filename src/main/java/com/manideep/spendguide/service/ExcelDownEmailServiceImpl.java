@@ -66,9 +66,9 @@ public class ExcelDownEmailServiceImpl implements ExcelDownEmailService {
                 Row row = sheet.createRow(rowNo);
                 row.createCell(0).setCellValue(rowNo++);
                 row.createCell(1).setCellValue(income.getName() != null ? income.getName() : "Unavailable");
-                row.createCell(1).setCellValue(income.getCategoryName() != null ? income.getCategoryName() : "Unavailable");
-                row.createCell(1).setCellValue(income.getAmount() != null ? income.getAmount().doubleValue() : 0.00);
-                row.createCell(1).setCellValue(income.getDate() != null ? income.getDate().toString() : "No Date");
+                row.createCell(2).setCellValue(income.getCategoryName() != null ? income.getCategoryName() : "Unavailable");
+                row.createCell(3).setCellValue(income.getAmount() != null ? income.getAmount().doubleValue() : 0.00);
+                row.createCell(4).setCellValue(income.getDate() != null ? income.getDate().toString() : "No Date");
             }
 
             // This will persists the in-memory excel workbook to the output stream
@@ -106,9 +106,9 @@ public class ExcelDownEmailServiceImpl implements ExcelDownEmailService {
                 Row row = sheet.createRow(rowNo);
                 row.createCell(0).setCellValue(rowNo++);
                 row.createCell(1).setCellValue(expense.getName() != null ? expense.getName() : "Unavailable");
-                row.createCell(1).setCellValue(expense.getCategoryName() != null ? expense.getCategoryName() : "Unavailable");
-                row.createCell(1).setCellValue(expense.getAmount() != null ? expense.getAmount().doubleValue() : 0.00);
-                row.createCell(1).setCellValue(expense.getDate() != null ? expense.getDate().toString() : "No Date");
+                row.createCell(2).setCellValue(expense.getCategoryName() != null ? expense.getCategoryName() : "Unavailable");
+                row.createCell(3).setCellValue(expense.getAmount() != null ? expense.getAmount().doubleValue() : 0.00);
+                row.createCell(4).setCellValue(expense.getDate() != null ? expense.getDate().toString() : "No Date");
             }
 
             // This will persists the in-memory excel workbook to the output stream
@@ -139,7 +139,7 @@ public class ExcelDownEmailServiceImpl implements ExcelDownEmailService {
                     "Spend Guide: Your this month's income list is here",
                     body,
                     generateIncomeExcel(incomes),
-                    "List_of_monthly_incomes_of_"+profileDTO.getFirstName()+"_"+profileDTO.getLastName()
+                    "List_of_monthly_incomes_of_"+profileDTO.getFirstName()+"_"+profileDTO.getLastName()+".xlsx"
                 );
                 logger.info("Email Sent [INCOME LIST]: emailMonthlyIncome()");
             }
@@ -171,7 +171,7 @@ public class ExcelDownEmailServiceImpl implements ExcelDownEmailService {
                     "Spend Guide: Your this month's expense list is here",
                     body,
                     generateExpenseExcel(expenses),
-                    "List_of_monthly_expenses_of_"+profileDTO.getFirstName()+"_"+profileDTO.getLastName()
+                    "List_of_monthly_expenses_of_"+profileDTO.getFirstName()+"_"+profileDTO.getLastName()+".xlsx"
                 );
                 logger.info("Email Sent [EXPENSE LIST]: emailMonthlyExpense()");
             }
