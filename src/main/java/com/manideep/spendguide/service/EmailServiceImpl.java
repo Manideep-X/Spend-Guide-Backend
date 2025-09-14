@@ -29,6 +29,7 @@ public class EmailServiceImpl implements EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
+    // This is Brevo API's client class for sending transaction emails 
     private final TransactionalEmailsApi emailsApi;
 
     @Value("${brevo.sender}")
@@ -38,9 +39,13 @@ public class EmailServiceImpl implements EmailService {
     private String senderName;
 
     public EmailServiceImpl(@Value("${brevo.apiKey}") String apiKey) {
+
+        // Configure the API client with the API key for authentication
         ApiClient defaultApiClient = Configuration.getDefaultApiClient();
         ApiKeyAuth apiKeyAuth = (ApiKeyAuth) defaultApiClient.getAuthentication("api-key");
         apiKeyAuth.setApiKey(apiKey);
+
+        // Initialised for sending email
         this.emailsApi = new TransactionalEmailsApi();
     }
 
@@ -54,7 +59,7 @@ public class EmailServiceImpl implements EmailService {
                             .sender(new SendSmtpEmailSender().email(senderEmail).name(senderName))
                             .htmlContent(body);
 
-            emailsApi.sendTransacEmail(email);
+            emailsApi.sendTransacEmail(email); // This sends request to Brevo API
 
         } catch (RuntimeException | ApiException e) {
             logger.error("[SendSmtpEmail, TransactionalEmailsApi] failed to send email ", e);
@@ -69,12 +74,13 @@ public class EmailServiceImpl implements EmailService {
     )throws RuntimeException {
 
         try {
+            // Need to read the ByteArrayInputStream and store it in an array of bytes
             byte fileInBytes[] = excelStream.readAllBytes();
             // String base64File = Base64.getEncoder().encodeToString(fileInBytes);
 
             SendSmtpEmailAttachment excelAttachment = new SendSmtpEmailAttachment()
                                 .name(filename)
-                                .content(fileInBytes);
+                                .content(fileInBytes); // This method needs an array of bytes
 
             SendSmtpEmail email = new SendSmtpEmail()
                                 .addToItem(new SendSmtpEmailTo().email(sendTo))
@@ -83,7 +89,7 @@ public class EmailServiceImpl implements EmailService {
                                 .htmlContent(body)
                                 .addAttachmentItem(excelAttachment);
 
-            emailsApi.sendTransacEmail(email);
+            emailsApi.sendTransacEmail(email); // This sends request to Brevo API
 
         } catch (RuntimeException | ApiException e) {
             logger.error("[SendSmtpEmailAttachment, TransactionalEmailsApi] failed to send email & excel ", e);

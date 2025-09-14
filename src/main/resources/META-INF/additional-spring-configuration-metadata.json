@@ -28,5 +28,15 @@
     "name": "brevo.senderName",
     "type": "java.lang.String",
     "description": "A description for 'brevo.senderName'"
+  },
+  {
+    "name": "brevo.apiKey",
+    "type": "java.lang.String",
+    "description": "A description for 'brevo.apiKey'"
+  },
+  {
+    "name": "brevo.senderName",
+    "type": "java.lang.String",
+    "description": "A description for 'brevo.senderName'"
   }
 ]}
