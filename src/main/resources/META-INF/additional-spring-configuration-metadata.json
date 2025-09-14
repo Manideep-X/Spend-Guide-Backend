@@ -13,5 +13,20 @@
     "name": "app.frontend-url",
     "type": "java.lang.String",
     "description": "A description for 'app.frontend-url'"
+  },
+  {
+    "name": "brevo.apiKey",
+    "type": "java.lang.String",
+    "description": "A description for 'brevo.apiKey'"
+  },
+  {
+    "name": "brevo.sender",
+    "type": "java.lang.String",
+    "description": "A description for 'brevo.sender'"
+  },
+  {
+    "name": "brevo.senderName",
+    "type": "java.lang.String",
+    "description": "A description for 'brevo.senderName'"
   }
 ]}
